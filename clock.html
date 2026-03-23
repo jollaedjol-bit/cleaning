@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital World Clock</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 to-slate-800 min-h-screen p-6">
+
+<div class="max-w-6xl mx-auto">
+  <h1 class="text-4xl font-bold text-white text-center mb-12">🌍 Digital World Clock</h1>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- New York -->
+    <div class="bg-gradient-to-br from-blue-600 to-blue-800 p-6 rounded-2xl shadow-lg">
+      <h2 class="text-2xl font-bold text-white mb-2">🗽 New York</h2>
+      <p class="text-gray-300 text-sm mb-4">UTC-5 (EST)</p>
+      <div id="ny-time" class="text-4xl font-mono font-bold text-yellow-300">00:00:00</div>
+      <p id="ny-date" class="text-gray-200 mt-2">Monday, Jan 1</p>
+    </div>
+
+    <!-- London -->
+    <div class="bg-gradient-to-br from-red-600 to-red-800 p-6 rounded-2xl shadow-lg">
+      <h2 class="text-2xl font-bold text-white mb-2">🇬🇧 London</h2>
+      <p class="text-gray-300 text-sm mb-4">UTC+0 (GMT)</p>
+      <div id="london-time" class="text-4xl font-mono font-bold text-yellow-300">00:00:00</div>
+      <p id="london-date" class="text-gray-200 mt-2">Monday, Jan 1</p>
+    </div>
+
+    <!-- Paris -->
+    <div class="bg-gradient-to-br from-purple-600 to-purple-800 p-6 rounded-2xl shadow-lg">
+      <h2 class="text-2xl font-bold text-white mb-2">🇫🇷 Paris</h2>
+      <p class="text-gray-300 text-sm mb-4">UTC+1 (CET)</p>
+      <div id="paris-time" class="text-4xl font-mono font-bold text-yellow-300">00:00:00</div>
+      <p id="paris-date" class="text-gray-200 mt-2">Monday, Jan 1</p>
+    </div>
+
+    <!-- Dubai -->
+    <div class="bg-gradient-to-br from-orange-600 to-orange-800 p-6 rounded-2xl shadow-lg">
+      <h2 class="text-2xl font-bold text-white mb-2">🇦🇪 Dubai</h2>
+      <p class="text-gray-300 text-sm mb-4">UTC+4 (GST)</p>
+      <div id="dubai-time" class="text-4xl font-mono font-bold text-yellow-300">00:00:00</div>
+      <p id="dubai-date" class="text-gray-200 mt-2">Monday, Jan 1</p>
+    </div>
+
+    <!-- Tokyo -->
+    <div class="bg-gradient-to-br from-pink-600 to-pink-800 p-6 rounded-2xl shadow-lg">
+      <h2 class="text-2xl font-bold text-white mb-2">🇯🇵 Tokyo</h2>
+      <p class="text-gray-300 text-sm mb-4">UTC+9 (JST)</p>
+      <div id="tokyo-time" class="text-4xl font-mono font-bold text-yellow-300">00:00:00</div>
+      <p id="tokyo-date" class="text-gray-200 mt-2">Monday, Jan 1</p>
+    </div>
+
+    <!-- Sydney -->
+    <div class="bg-gradient-to-br from-green-600 to-green-800 p-6 rounded-2xl shadow-lg">
+      <h2 class="text-2xl font-bold text-white mb-2">🇦🇺 Sydney</h2>
+      <p class="text-gray-300 text-sm mb-4">UTC+11 (AEDT)</p>
+      <div id="sydney-time" class="text-4xl font-mono font-bold text-yellow-300">00:00:00</div>
+      <p id="sydney-date" class="text-gray-200 mt-2">Monday, Jan 1</p>
+    </div>
+  </div>
+
+  <!-- UTC Clock -->
+  <div class="mt-12 bg-gradient-to-br from-indigo-600 to-indigo-800 p-8 rounded-2xl shadow-lg text-center">
+    <h2 class="text-3xl font-bold text-white mb-4">🌐 Coordinated Universal Time (UTC)</h2>
+    <div id="utc-time" class="text-5xl font-mono font-bold text-yellow-300">00:00:00</div>
+    <p id="utc-date" class="text-gray-200 mt-4 text-lg">Monday, January 1, 2026</p>
+  </div>
+</div>
+
+<script>
+const timezones = {
+  'ny-time': { name: 'America/New_York', dateId: 'ny-date' },
+  'london-time': { name: 'Europe/London', dateId: 'london-date' },
+  'paris-time': { name: 'Europe/Paris', dateId: 'paris-date' },
+  'dubai-time': { name: 'Asia/Dubai', dateId: 'dubai-date' },
+  'tokyo-time': { name: 'Asia/Tokyo', dateId: 'tokyo-date' },
+  'sydney-time': { name: 'Australia/Sydney', dateId: 'sydney-date' }
+};
+
+function formatTime(date) {
+  return date.toLocaleTimeString('en-US', { 
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+}
+
+function formatDate(date) {
+  const options = { weekday: 'long', month: 'long', day: 'numeric' };
+  return date.toLocaleDateString('en-US', options);
+}
+
+function updateClocks() {
+  const now = new Date();
+  
+  // Update each timezone
+  Object.entries(timezones).forEach(([timeId, { name, dateId }]) => {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: name,
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long'
+    });
+    
+    const parts = formatter.formatToParts(now);
+    const timeStr = `${parts.find(p => p.type === 'hour').value}:${parts.find(p => p.type === 'minute').value}:${parts.find(p => p.type === 'second').value}`;
+    const dateStr = `${parts.find(p => p.type === 'weekday').value}, ${parts.find(p => p.type === 'month').value} ${parts.find(p => p.type === 'day').value}`;
+    
+    document.getElementById(timeId).innerText = timeStr;
+    document.getElementById(dateId).innerText = dateStr;
+  });
+
+  // Update UTC
+  const utcFormatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'UTC',
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'long'
+  });
+  
+  const utcParts = utcFormatter.formatToParts(now);
+  const utcTime = `${utcParts.find(p => p.type === 'hour').value}:${utcParts.find(p => p.type === 'minute').value}:${utcParts.find(p => p.type === 'second').value}`;
+  const utcDate = `${utcParts.find(p => p.type === 'weekday').value}, ${utcParts.find(p => p.type === 'month').value} ${utcParts.find(p => p.type === 'day').value}, ${utcParts.find(p => p.type === 'year').value}`;
+  
+  document.getElementById('utc-time').innerText = utcTime;
+  document.getElementById('utc-date').innerText = utcDate;
+}
+
+// Update immediately and then every second
+updateClocks();
+setInterval(updateClocks, 1000);
+</script>
+
+</body>
+</html>
